@@ -1,0 +1,28 @@
+# Node.js dependencies
+node_modules/
+
+# Local env files containing secrets
+.env
+.env.local
+
+# Frontend production builds
+dist/
+build/
+
+# IDE files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Uploaded local images (except gitkeep)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
