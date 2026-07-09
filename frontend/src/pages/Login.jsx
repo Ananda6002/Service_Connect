@@ -14,8 +14,8 @@ const Login = () => {
   // Redirect if user is already logged in
   useEffect(() => {
     if (user) {
-      if (user.role === 'admin') {
-        navigate('/admin');
+      if (user.role === 'provider') {
+        navigate('/provider-dashboard');
       } else {
         navigate('/dashboard');
       }
@@ -45,9 +45,9 @@ const Login = () => {
         <div className="col-md-5">
           <div className="glass-card p-5">
             <div className="text-center mb-4">
-              <i className="bi bi-shield-lock text-info fs-1"></i>
+              <i className="bi bi-person-badge text-info fs-1"></i>
               <h2 className="mt-3 brand-font">Sign In</h2>
-              <p className="text-secondary small">Access the Complaint Management System</p>
+              <p className="text-secondary small">Access ServiceConnect</p>
             </div>
 
             {errorMsg && (

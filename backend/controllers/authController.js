@@ -13,7 +13,7 @@ const generateToken = (id) => {
 // @access  Public
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, skills, location, phone, bio, hourlyRate } = req.body;
 
     // Check if fields are provided
     if (!name || !email || !password) {
@@ -26,15 +26,31 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ success: false, message: 'User already exists with this email' });
     }
 
-    // Create user. Allow role specification for testing purposes.
-    const requestedRole = role === 'admin' ? 'admin' : 'user';
+    // Determine the role
+    let requestedRole = 'user';
+    if (role === 'provider') {
+      requestedRole = 'provider';
+    } else if (role === 'admin') {
+      requestedRole = 'admin';
+    }
 
-    const user = await User.create({
+    const userData = {
       name,
       email,
       password,
       role: requestedRole
-    });
+    };
+
+    // Add provider details if role is provider
+    if (requestedRole === 'provider') {
+      userData.skills = skills || [];
+      userData.location = location || '';
+      userData.phone = phone || '';
+      userData.bio = bio || '';
+      userData.hourlyRate = hourlyRate ? parseFloat(hourlyRate) : 0;
+    }
+
+    const user = await User.create(userData);
 
     if (user) {
       res.status(201).json({
@@ -44,7 +60,12 @@ const registerUser = async (req, res) => {
           _id: user._id,
           name: user.name,
           email: user.email,
-          role: user.role
+          role: user.role,
+          skills: user.skills,
+          location: user.location,
+          phone: user.phone,
+          bio: user.bio,
+          hourlyRate: user.hourlyRate
         }
       });
     } else {
@@ -86,7 +107,12 @@ const loginUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        skills: user.skills,
+        location: user.location,
+        phone: user.phone,
+        bio: user.bio,
+        hourlyRate: user.hourlyRate
       }
     });
   } catch (error) {

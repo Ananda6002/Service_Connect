@@ -20,8 +20,28 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin'],
+    enum: ['user', 'provider', 'admin'],
     default: 'user'
+  },
+  skills: {
+    type: [String],
+    default: []
+  },
+  location: {
+    type: String,
+    default: ''
+  },
+  phone: {
+    type: String,
+    default: ''
+  },
+  bio: {
+    type: String,
+    default: ''
+  },
+  hourlyRate: {
+    type: Number,
+    default: 0
   },
   createdAt: {
     type: Date,

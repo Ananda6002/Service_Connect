@@ -34,11 +34,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/complaints', require('./routes/complaintRoutes'));
+app.use('/api/bookings', require('./routes/bookingRoutes'));
 
 // Basic health check route
 app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to the Complaint Management System API' });
+  res.json({ message: 'Welcome to the Local Service Finder API' });
 });
 
 // Error handling middleware

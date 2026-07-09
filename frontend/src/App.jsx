@@ -5,8 +5,7 @@ import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import UserDashboard from './pages/UserDashboard';
-import SubmitComplaint from './pages/SubmitComplaint';
-import AdminDashboard from './pages/AdminDashboard';
+import ProviderDashboard from './pages/ProviderDashboard';
 
 // Protected Route wrapper for standard login check
 const ProtectedRoute = ({ children }) => {
@@ -23,8 +22,8 @@ const ProtectedRoute = ({ children }) => {
   return token ? children : <Navigate to="/login" replace />;
 };
 
-// Admin protected route wrapper
-const AdminRoute = ({ children }) => {
+// Provider protected route wrapper
+const ProviderRoute = ({ children }) => {
   const { user, token, loading } = useContext(AuthContext);
 
   if (loading) {
@@ -36,7 +35,7 @@ const AdminRoute = ({ children }) => {
   }
 
   if (!token) return <Navigate to="/login" replace />;
-  return user && user.role === 'admin' ? children : <Navigate to="/dashboard" replace />;
+  return user && user.role === 'provider' ? children : <Navigate to="/dashboard" replace />;
 };
 
 const AppContent = () => {
@@ -50,30 +49,24 @@ const AppContent = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* User panel pages */}
+        {/* User (Client) dashboard page */}
         <Route path="/dashboard" element={
           <ProtectedRoute>
-            {user?.role === 'admin' ? <Navigate to="/admin" replace /> : <UserDashboard />}
+            {user?.role === 'provider' ? <Navigate to="/provider-dashboard" replace /> : <UserDashboard />}
           </ProtectedRoute>
         } />
         
-        <Route path="/submit-complaint" element={
-          <ProtectedRoute>
-            <SubmitComplaint />
-          </ProtectedRoute>
-        } />
-
-        {/* Admin panel pages */}
-        <Route path="/admin" element={
-          <AdminRoute>
-            <AdminDashboard />
-          </AdminRoute>
+        {/* Provider dashboard page */}
+        <Route path="/provider-dashboard" element={
+          <ProviderRoute>
+            <ProviderDashboard />
+          </ProviderRoute>
         } />
 
         {/* Dynamic home routing based on authentication role */}
         <Route path="/" element={
           user ? (
-            user.role === 'admin' ? <Navigate to="/admin" replace /> : <Navigate to="/dashboard" replace />
+            user.role === 'provider' ? <Navigate to="/provider-dashboard" replace /> : <Navigate to="/dashboard" replace />
           ) : (
             <Navigate to="/login" replace />
           )

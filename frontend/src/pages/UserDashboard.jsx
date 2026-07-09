@@ -1,296 +1,330 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import API, { API_BASE_URL } from '../services/api';
+import API from '../services/api';
 
 const UserDashboard = () => {
   const { user } = useContext(AuthContext);
-  const [complaints, setComplaints] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedImage, setSelectedImage] = useState(null); // For modal preview
-  
-  const navigate = useNavigate();
+  const [providers, setProviders] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [loadingProviders, setLoadingProviders] = useState(false);
+  const [loadingBookings, setLoadingBookings] = useState(false);
+
+  // Search filters
+  const [selectedService, setSelectedService] = useState('');
+  const [locationQuery, setLocationQuery] = useState('');
+
+  // Booking modal state
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState(null);
+  const [bookingDesc, setBookingDesc] = useState('');
+  const [bookingLoc, setBookingLoc] = useState('');
+  const [submittingBooking, setSubmittingBooking] = useState(false);
+  const [bookingError, setBookingError] = useState('');
+  const [bookingSuccess, setBookingSuccess] = useState('');
+
+  const servicesList = ['Electrician', 'Plumber', 'Technician', 'Carpenter', 'Painter', 'AC Repair'];
 
   useEffect(() => {
-    fetchComplaints();
+    fetchProviders();
+    fetchBookings();
   }, []);
 
-  const fetchComplaints = async () => {
+  const fetchProviders = async (service = '', loc = '') => {
     try {
-      setLoading(true);
-      const res = await API.get('/complaints/user');
+      setLoadingProviders(true);
+      let url = '/bookings/providers';
+      const params = [];
+      if (service) params.push(`serviceType=${encodeURIComponent(service)}`);
+      if (loc) params.push(`location=${encodeURIComponent(loc)}`);
+      if (params.length > 0) {
+        url += `?${params.join('&')}`;
+      }
+      const res = await API.get(url);
       if (res.data.success) {
-        setComplaints(res.data.complaints);
+        setProviders(res.data.providers);
       }
     } catch (error) {
-      console.error('Error fetching complaints:', error);
+      console.error('Error fetching providers:', error);
     } finally {
-      setLoading(false);
+      setLoadingProviders(false);
     }
   };
 
-  // Helper stats counters
-  const stats = {
-    total: complaints.length,
-    pending: complaints.filter(c => c.status === 'Pending').length,
-    active: complaints.filter(c => c.status === 'In Progress').length,
-    resolved: complaints.filter(c => c.status === 'Resolved').length
+  const fetchBookings = async () => {
+    try {
+      setLoadingBookings(true);
+      const res = await API.get('/bookings/user');
+      if (res.data.success) {
+        setBookings(res.data.bookings);
+      }
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+    } finally {
+      setLoadingBookings(false);
+    }
   };
 
-  // Filtering criteria
-  const filteredComplaints = complaints.filter(c => {
-    const matchesStatus = statusFilter === 'All' || c.status === statusFilter;
-    const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          c.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchProviders(selectedService, locationQuery);
+  };
 
-  const getStepStatus = (status, nodeName) => {
-    if (status === 'Pending') {
-      if (nodeName === 'Pending') return 'active';
-      return '';
+  const handleResetSearch = () => {
+    setSelectedService('');
+    setLocationQuery('');
+    fetchProviders('', '');
+  };
+
+  const openBookingModal = (provider) => {
+    setSelectedProvider(provider);
+    setBookingDesc('');
+    setBookingLoc('');
+    setBookingError('');
+    setBookingSuccess('');
+    setShowBookingModal(true);
+  };
+
+  const handleCreateBooking = async (e) => {
+    e.preventDefault();
+    if (!bookingDesc || !bookingLoc) {
+      setBookingError('Please fill in all booking details.');
+      return;
     }
-    if (status === 'In Progress') {
-      if (nodeName === 'Pending') return 'completed';
-      if (nodeName === 'In Progress') return 'active';
-      return '';
+    try {
+      setSubmittingBooking(true);
+      setBookingError('');
+      const res = await API.post('/bookings', {
+        providerId: selectedProvider._id,
+        serviceType: selectedProvider.skills[0] || 'General Service',
+        description: bookingDesc,
+        location: bookingLoc
+      });
+      if (res.data.success) {
+        setBookingSuccess('Service requested successfully! The provider will review your request.');
+        fetchBookings();
+        setTimeout(() => {
+          setShowBookingModal(false);
+        }, 2000);
+      }
+    } catch (error) {
+      setBookingError(error.response?.data?.message || 'Failed to send service request.');
+    } finally {
+      setSubmittingBooking(false);
     }
-    if (status === 'Resolved') {
-      return 'completed';
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case 'Pending': return 'status-pending';
+      case 'Accepted': return 'status-inprogress';
+      case 'Completed': return 'status-resolved';
+      case 'Rejected': return 'status-rejected';
+      default: return '';
     }
-    return '';
   };
 
   return (
     <div className="container py-5">
-      {/* Header section */}
-      <div className="row mb-5 align-items-center">
-        <div className="col-md-8">
-          <h2 className="brand-font text-info mb-1">Welcome back, {user?.name}!</h2>
-          <p className="text-secondary small">Track, manage, and file complaints on your neighborhood infrastructure issues.</p>
-        </div>
-        <div className="col-md-4 text-md-end mt-3 mt-md-0">
-          <Link to="/submit-complaint" className="btn btn-cyan btn-lg py-3 px-4 shadow">
-            <i className="bi bi-plus-circle-fill me-2"></i> File New Complaint
-          </Link>
+      {/* Welcome Banner */}
+      <div className="row mb-5">
+        <div className="col-12">
+          <h2 className="brand-font gradient-title mb-1">Welcome, {user?.name}!</h2>
+          <p className="text-secondary small">Search and connect with nearby professional service providers, book a job, and track status.</p>
         </div>
       </div>
 
-      {/* Metrics breakdown dashboard widgets */}
-      <div className="row g-4 mb-5">
-        <div className="col-6 col-lg-3">
-          <div className="glass-card metric-card metric-total text-center">
-            <h5 className="text-secondary small fw-medium mb-1">Total Filed</h5>
-            <h2 className="fw-bold mb-0 text-white brand-font">{stats.total}</h2>
-          </div>
-        </div>
-        <div className="col-6 col-lg-3">
-          <div className="glass-card metric-card metric-pending text-center">
-            <h5 className="text-secondary small fw-medium mb-1">Pending</h5>
-            <h2 className="fw-bold mb-0 text-warning brand-font">{stats.pending}</h2>
-          </div>
-        </div>
-        <div className="col-6 col-lg-3">
-          <div className="glass-card metric-card metric-active text-center">
-            <h5 className="text-secondary small fw-medium mb-1">In Progress</h5>
-            <h2 className="fw-bold mb-0 text-purple brand-font" style={{ color: '#8b5cf6' }}>{stats.active}</h2>
-          </div>
-        </div>
-        <div className="col-6 col-lg-3">
-          <div className="glass-card metric-card metric-resolved text-center">
-            <h5 className="text-secondary small fw-medium mb-1">Resolved</h5>
-            <h2 className="fw-bold mb-0 text-emerald brand-font" style={{ color: '#10b981' }}>{stats.resolved}</h2>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters section */}
-      <div className="glass-card p-4 mb-4">
-        <div className="row g-3 align-items-center">
-          <div className="col-md-4">
-            <div className="input-group">
-              <span className="input-group-text bg-transparent border-end-0 border-secondary text-secondary">
-                <i className="bi bi-search"></i>
-              </span>
-              <input
-                type="text"
-                className="form-control form-control-custom ps-0"
-                style={{ borderLeft: 'none' }}
-                placeholder="Search complaints..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="col-md-8 text-md-end">
-            <div className="btn-group" role="group">
-              {['All', 'Pending', 'In Progress', 'Resolved'].map((status) => (
-                <button
-                  key={status}
-                  type="button"
-                  className={`btn ${statusFilter === status ? 'btn-cyan' : 'btn-outline-custom'} px-3 py-2`}
-                  onClick={() => setStatusFilter(status)}
+      {/* Main Grid: Search & Booking details */}
+      <div className="row g-4">
+        {/* Left column: Provider search & listing */}
+        <div className="col-lg-8">
+          <div className="glass-card p-4 mb-4">
+            <h4 className="brand-font fs-5 text-light mb-3"><i className="bi bi-search me-2 text-info"></i> Find Service Providers</h4>
+            <form onSubmit={handleSearch} className="row g-3">
+              <div className="col-md-5">
+                <select
+                  className="form-select form-control-custom"
+                  value={selectedService}
+                  onChange={(e) => setSelectedService(e.target.value)}
                 >
-                  {status}
+                  <option value="">All Services</option>
+                  {servicesList.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div className="col-md-5">
+                <input
+                  type="text"
+                  className="form-control form-control-custom"
+                  placeholder="Search by location (e.g. Seattle)"
+                  value={locationQuery}
+                  onChange={(e) => setLocationQuery(e.target.value)}
+                />
+              </div>
+              <div className="col-md-2 d-grid">
+                <button type="submit" className="btn btn-cyan py-2">Search</button>
+              </div>
+            </form>
+            {(selectedService || locationQuery) && (
+              <div className="mt-3">
+                <button onClick={handleResetSearch} className="btn btn-outline-custom btn-sm">
+                  Clear Filters
                 </button>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
-        </div>
-      </div>
 
-      {/* Complaints List Cards */}
-      {loading ? (
-        <div className="text-center py-5">
-          <div className="spinner-border text-info" role="status" style={{ width: '3rem', height: '3rem' }}>
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <p className="mt-3 text-secondary">Loading your submitted complaints...</p>
-        </div>
-      ) : filteredComplaints.length === 0 ? (
-        <div className="glass-card p-5 text-center">
-          <i className="bi bi-folder-x text-secondary fs-1"></i>
-          <h4 className="mt-3 brand-font">No complaints found</h4>
-          <p className="text-secondary small">
-            {searchQuery || statusFilter !== 'All' 
-              ? 'No items match your active filters. Try resetting search parameters.'
-              : 'You have not submitted any complaints yet.'}
-          </p>
-          {!searchQuery && statusFilter === 'All' && (
-            <Link to="/submit-complaint" className="btn btn-cyan mt-3 px-4">
-              File Your First Complaint
-            </Link>
-          )}
-        </div>
-      ) : (
-        <div className="row g-4">
-          {filteredComplaints.map((c) => (
-            <div className="col-md-6" key={c._id}>
-              <div className="glass-card p-4 h-100 d-flex flex-column justify-content-between">
-                <div>
-                  {/* Title & Badges */}
-                  <div className="d-flex justify-content-between align-items-start mb-3 gap-2">
-                    <span className={`priority-tag priority-${c.priority.toLowerCase()}`}>
-                      {c.priority} Priority
-                    </span>
-                    <span className={`status-badge status-${c.status.replace(/\s+/g, '').toLowerCase()}`}>
-                      <i className={`bi bi-${c.status === 'Resolved' ? 'check-circle' : c.status === 'In Progress' ? 'arrow-repeat' : 'clock'}`}></i>
-                      {c.status}
-                    </span>
-                  </div>
-
-                  <h3 className="brand-font fs-5 text-light mb-2">{c.title}</h3>
-                  <p className="text-secondary small mb-4" style={{ display: '-webkit-box', WebkitLineClamp: '3', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {c.description}
-                  </p>
-
-                  {/* Complaint Progress Stepper */}
-                  <div className="mb-4">
-                    <h6 className="text-secondary small fw-medium mb-3">Resolution Flow</h6>
-                    <div className="stepper px-2">
-                      <div className="d-flex flex-column align-items-center">
-                        <div className={`step-node ${getStepStatus(c.status, 'Pending')}`}>
-                          <i className="bi bi-send small"></i>
-                        </div>
-                        <span className="text-secondary small mt-1" style={{ fontSize: '0.7rem' }}>Submitted</span>
-                      </div>
-                      <div className="d-flex flex-column align-items-center">
-                        <div className={`step-node ${getStepStatus(c.status, 'In Progress')}`}>
-                          <i className="bi bi-wrench small"></i>
-                        </div>
-                        <span className="text-secondary small mt-1" style={{ fontSize: '0.7rem' }}>Active</span>
-                      </div>
-                      <div className="d-flex flex-column align-items-center">
-                        <div className={`step-node ${getStepStatus(c.status, 'Resolved')}`}>
-                          <i className="bi bi-check2-all small"></i>
-                        </div>
-                        <span className="text-secondary small mt-1" style={{ fontSize: '0.7rem' }}>Resolved</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Image attachment / Location / Assignments */}
-                  <div className="row g-3 mb-3">
-                    {c.image && (
-                      <div className="col-4">
-                        <div 
-                          className="border border-secondary rounded-3 overflow-hidden position-relative" 
-                          style={{ height: '70px', cursor: 'pointer' }}
-                          onClick={() => setSelectedImage(`${API_BASE_URL}${c.image}`)}
-                        >
-                          <img
-                            src={`${API_BASE_URL}${c.image}`}
-                            alt="Incident attachment"
-                            className="w-100 h-100"
-                            style={{ objectFit: 'cover' }}
-                          />
-                          <div className="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-70 text-center text-white" style={{ fontSize: '0.55rem', padding: '1px 0' }}>
-                            <i className="bi bi-fullscreen"></i> Zoom
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    <div className={c.image ? "col-8" : "col-12"}>
-                      <div className="p-3 bg-dark bg-opacity-30 rounded-3 border border-secondary border-opacity-10 h-100">
-                        <div className="text-secondary small" style={{ fontSize: '0.75rem' }}>
-                          <i className="bi bi-geo-alt-fill text-info me-1"></i>
-                          <strong className="text-light">Location: </strong>
-                          {c.location.address || `Coordinates (${c.location.latitude.toFixed(4)}, ${c.location.longitude.toFixed(4)})`}
-                        </div>
-                        <div className="text-secondary small mt-1" style={{ fontSize: '0.75rem' }}>
-                          <i className="bi bi-person-badge-fill text-info me-1"></i>
-                          <strong className="text-light">Worker: </strong>
-                          {c.assignedWorker}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Admin notes if resolved */}
-                {c.adminComments && (
-                  <div className="mt-3 p-3 rounded-3 bg-emerald bg-opacity-10 border-start border-3 border-success text-success small" style={{ background: 'rgba(16, 185, 129, 0.05)' }}>
-                    <strong className="d-block mb-1"><i className="bi bi-chat-square-text-fill me-1"></i> Resolution Notes:</strong>
-                    {c.adminComments}
-                  </div>
-                )}
-                
-                <div className="border-top border-secondary border-opacity-10 pt-3 mt-3 d-flex justify-content-between align-items-center">
-                  <span className="text-secondary small" style={{ fontSize: '0.7rem' }}>
-                    Filed: {new Date(c.createdAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}
-                  </span>
-                  <span className="text-secondary small" style={{ fontSize: '0.7rem' }}>
-                    Updated: {new Date(c.updatedAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}
-                  </span>
-                </div>
+          <h4 className="brand-font fs-5 text-light mb-3">Available Providers</h4>
+          {loadingProviders ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-info" role="status">
+                <span className="visually-hidden">Loading...</span>
               </div>
             </div>
-          ))}
+          ) : providers.length === 0 ? (
+            <div className="glass-card p-5 text-center">
+              <i className="bi bi-person-x text-secondary fs-1"></i>
+              <h5 className="mt-3 brand-font">No service providers found</h5>
+              <p className="text-secondary small">Try widening your search terms or changing selected services.</p>
+            </div>
+          ) : (
+            <div className="row g-3">
+              {providers.map(prov => (
+                <div className="col-12" key={prov._id}>
+                  <div className="glass-card p-4">
+                    <div className="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                      <div>
+                        <h4 className="brand-font fs-5 mb-1 text-light">{prov.name}</h4>
+                        <div className="d-flex gap-2 flex-wrap mt-2">
+                          {prov.skills.map(s => (
+                            <span key={s} className="badge bg-dark border border-info text-info small px-2 py-1">
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="text-md-end">
+                        <span className="text-info fw-bold fs-5">${prov.hourlyRate}/hr</span>
+                        <p className="text-secondary small mb-0"><i className="bi bi-geo-alt-fill text-warning me-1"></i>{prov.location}</p>
+                      </div>
+                    </div>
+                    
+                    <p className="text-secondary small mb-3">
+                      {prov.bio || "No details provided by this service provider."}
+                    </p>
+                    
+                    <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-3 border-top border-secondary border-opacity-10">
+                      <span className="text-secondary small"><i className="bi bi-telephone-fill me-1"></i>{prov.phone || 'No phone'}</span>
+                      <button onClick={() => openBookingModal(prov)} className="btn btn-cyan btn-sm px-4">
+                        <i className="bi bi-calendar-check me-1"></i> Book Service
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      )}
 
-      {/* Image Modal Lightbox overlay */}
-      {selectedImage && (
-        <div 
-          className="position-fixed top-0 start-0 w-100 h-100 bg-black bg-opacity-90 d-flex align-items-center justify-content-center" 
-          style={{ zIndex: 1050, cursor: 'zoom-out' }}
-          onClick={() => setSelectedImage(null)}
-        >
-          <div className="position-relative p-2" style={{ maxWidth: '90%', maxHeight: '90%' }}>
-            <img 
-              src={selectedImage} 
-              alt="Expanded view" 
-              className="img-fluid rounded-3 border border-secondary"
-              style={{ maxHeight: '80vh', objectFit: 'contain' }}
-            />
-            <button 
-              className="btn btn-outline-light btn-sm position-absolute top-0 end-0 m-3 rounded-circle"
-              onClick={() => setSelectedImage(null)}
-            >
-              <i className="bi bi-x-lg"></i>
-            </button>
+        {/* Right column: Client Bookings History */}
+        <div className="col-lg-4">
+          <div className="glass-card p-4">
+            <h4 className="brand-font fs-5 text-light mb-4"><i className="bi bi-clock-history me-2 text-info"></i> My Bookings</h4>
+            {loadingBookings ? (
+              <div className="text-center py-5">
+                <div className="spinner-border text-info" role="status"></div>
+              </div>
+            ) : bookings.length === 0 ? (
+              <div className="text-center py-4 text-secondary small">
+                <i className="bi bi-calendar2-x fs-2 mb-2 d-block text-secondary"></i>
+                You haven't requested any services yet.
+              </div>
+            ) : (
+              <div className="d-flex flex-column gap-3">
+                {bookings.map(b => (
+                  <div key={b._id} className="p-3 rounded bg-dark bg-opacity-30 border border-secondary border-opacity-15">
+                    <div className="d-flex justify-content-between align-items-start mb-2">
+                      <h6 className="text-light fw-semibold mb-0">{b.provider?.name || 'Unknown Provider'}</h6>
+                      <span className={`status-badge ${getStatusBadgeClass(b.status)}`} style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem' }}>
+                        {b.status}
+                      </span>
+                    </div>
+                    <p className="text-info small mb-2">{b.serviceType}</p>
+                    <p className="text-secondary small mb-2 text-truncate">{b.description}</p>
+                    <div className="text-secondary small" style={{ fontSize: '0.7rem' }}>
+                      <i className="bi bi-geo-alt-fill text-warning me-1"></i> {b.location}
+                    </div>
+                    <div className="text-secondary small mt-1" style={{ fontSize: '0.65rem' }}>
+                      Requested: {new Date(b.createdAt).toLocaleDateString(undefined, { dateStyle: 'short' })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Booking Modal Dialog */}
+      {showBookingModal && selectedProvider && (
+        <div className="modal show d-block" tabIndex="-1" style={{ background: 'rgba(0,0,0,0.85)', zIndex: 1050 }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content glass-card p-4 text-light">
+              <div className="modal-header border-0 pb-0">
+                <h5 className="modal-title brand-font text-info"><i className="bi bi-calendar-check me-2"></i> Book {selectedProvider.name}</h5>
+                <button type="button" className="btn-close btn-close-white" onClick={() => setShowBookingModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                {bookingError && (
+                  <div className="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger rounded p-3 mb-3">
+                    {bookingError}
+                  </div>
+                )}
+                {bookingSuccess && (
+                  <div className="alert alert-success border-0 bg-success bg-opacity-10 text-success rounded p-3 mb-3">
+                    {bookingSuccess}
+                  </div>
+                )}
+
+                <div className="mb-3">
+                  <span className="text-secondary small">Service Type: </span>
+                  <span className="badge bg-info text-dark ms-1">{selectedProvider.skills[0]}</span>
+                  <span className="text-secondary small ms-3">Rate: </span>
+                  <span className="text-info fw-bold">${selectedProvider.hourlyRate}/hr</span>
+                </div>
+
+                <form onSubmit={handleCreateBooking}>
+                  <div className="mb-3">
+                    <label className="form-label text-secondary small fw-medium">Describe your request</label>
+                    <textarea
+                      className="form-control form-control-custom"
+                      rows="3"
+                      placeholder="Specify what requires repair or installation..."
+                      value={bookingDesc}
+                      onChange={(e) => setBookingDesc(e.target.value)}
+                      required
+                    ></textarea>
+                  </div>
+                  <div className="mb-4">
+                    <label className="form-label text-secondary small fw-medium">Service Address / Location</label>
+                    <input
+                      type="text"
+                      className="form-control form-control-custom"
+                      placeholder="e.g. 123 Main St, Apt 4B"
+                      value={bookingLoc}
+                      onChange={(e) => setBookingLoc(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="d-flex justify-content-end gap-2">
+                    <button type="button" className="btn btn-outline-custom" onClick={() => setShowBookingModal(false)}>
+                      Cancel
+                    </button>
+                    <button type="submit" className="btn btn-cyan px-4" disabled={submittingBooking}>
+                      {submittingBooking ? 'Sending Request...' : 'Send Request'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       )}
