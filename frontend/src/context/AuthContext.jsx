@@ -72,8 +72,24 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  // Update profile handler
+  const updateProfile = async (updatedFields) => {
+    try {
+      const res = await API.put('/auth/profile', updatedFields);
+      if (res.data.success) {
+        setUser(res.data.user);
+        return { success: true };
+      }
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Failed to update profile.' 
+      };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import UserDashboard from './pages/UserDashboard';
 import ProviderDashboard from './pages/ProviderDashboard';
+import AdminDashboard from './pages/AdminDashboard';
 
 // Protected Route wrapper for standard login check
 const ProtectedRoute = ({ children }) => {
@@ -38,6 +39,22 @@ const ProviderRoute = ({ children }) => {
   return user && user.role === 'provider' ? children : <Navigate to="/dashboard" replace />;
 };
 
+// Admin protected route wrapper
+const AdminRoute = ({ children }) => {
+  const { user, token, loading } = useContext(AuthContext);
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
+        <div className="spinner-border text-info" role="status"></div>
+      </div>
+    );
+  }
+
+  if (!token) return <Navigate to="/login" replace />;
+  return user && user.role === 'admin' ? children : <Navigate to="/dashboard" replace />;
+};
+
 const AppContent = () => {
   const { user } = useContext(AuthContext);
 
@@ -52,7 +69,13 @@ const AppContent = () => {
         {/* User (Client) dashboard page */}
         <Route path="/dashboard" element={
           <ProtectedRoute>
-            {user?.role === 'provider' ? <Navigate to="/provider-dashboard" replace /> : <UserDashboard />}
+            {user?.role === 'provider' ? (
+              <Navigate to="/provider-dashboard" replace />
+            ) : user?.role === 'admin' ? (
+              <Navigate to="/admin-dashboard" replace />
+            ) : (
+              <UserDashboard />
+            )}
           </ProtectedRoute>
         } />
         
@@ -63,10 +86,23 @@ const AppContent = () => {
           </ProviderRoute>
         } />
 
+        {/* Admin dashboard page */}
+        <Route path="/admin-dashboard" element={
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
+        } />
+
         {/* Dynamic home routing based on authentication role */}
         <Route path="/" element={
           user ? (
-            user.role === 'provider' ? <Navigate to="/provider-dashboard" replace /> : <Navigate to="/dashboard" replace />
+            user.role === 'provider' ? (
+              <Navigate to="/provider-dashboard" replace />
+            ) : user.role === 'admin' ? (
+              <Navigate to="/admin-dashboard" replace />
+            ) : (
+              <Navigate to="/dashboard" replace />
+            )
           ) : (
             <Navigate to="/login" replace />
           )

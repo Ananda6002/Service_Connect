@@ -35,6 +35,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/bookings', require('./routes/bookingRoutes'));
+app.use('/api/reviews', require('./routes/reviewRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
 
 // Basic health check route
 app.get('/', (req, res) => {

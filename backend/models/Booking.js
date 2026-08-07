@@ -23,6 +23,18 @@ const bookingSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add the location where the service is needed']
   },
+  bookingDate: {
+    type: Date,
+    required: [true, 'Please specify the booking date']
+  },
+  bookingTime: {
+    type: String,
+    required: [true, 'Please specify the booking time']
+  },
+  hasReview: {
+    type: Boolean,
+    default: false
+  },
   status: {
     type: String,
     enum: ['Pending', 'Accepted', 'Rejected', 'Completed'],

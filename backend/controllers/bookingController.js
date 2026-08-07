@@ -1,17 +1,18 @@
 const Booking = require('../models/Booking');
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 
 // @desc    Get all service providers with optional skill/location filters
 // @route   GET /api/bookings/providers
 // @access  Private (Registered Users)
 const getProviders = async (req, res) => {
   try {
-    const { serviceType, location } = req.query;
+    const { serviceType, location, lat, lng } = req.query;
     const query = { role: 'provider' };
 
     if (serviceType) {
-      // Find providers that have this skill (case-insensitive)
-      query.skills = { $in: [new RegExp(`^${serviceType}$`, 'i')] };
+      // Find providers that have any skill matching the query (case-insensitive substring match)
+      query.skills = { $elemMatch: { $regex: serviceType, $options: 'i' } };
     }
 
     if (location) {
@@ -19,7 +20,41 @@ const getProviders = async (req, res) => {
       query.location = { $regex: location, $options: 'i' };
     }
 
-    const providers = await User.find(query).select('-password');
+    let providers = await User.find(query).select('-password').lean();
+
+    // Helper for Haversine formula
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+      const R = 6371; // Radius of earth in km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c; // Distance in km
+    };
+
+    if (lat && lng) {
+      const clientLat = parseFloat(lat);
+      const clientLng = parseFloat(lng);
+
+      providers = providers.map(p => {
+        if (p.latitude !== null && p.longitude !== null && p.latitude !== undefined && p.longitude !== undefined) {
+          const dist = calculateDistance(clientLat, clientLng, p.latitude, p.longitude);
+          return { ...p, distance: parseFloat(dist.toFixed(2)) };
+        }
+        return { ...p, distance: null };
+      });
+
+      // Sort nearest first (distance !== null comes before distance === null)
+      providers.sort((a, b) => {
+        if (a.distance === null && b.distance === null) return 0;
+        if (a.distance === null) return 1;
+        if (b.distance === null) return -1;
+        return a.distance - b.distance;
+      });
+    }
 
     res.json({
       success: true,
@@ -37,12 +72,12 @@ const getProviders = async (req, res) => {
 // @access  Private (Clients)
 const createBooking = async (req, res) => {
   try {
-    const { providerId, serviceType, description, location } = req.body;
+    const { providerId, serviceType, description, location, bookingDate, bookingTime } = req.body;
 
-    if (!providerId || !serviceType || !description || !location) {
+    if (!providerId || !serviceType || !description || !location || !bookingDate || !bookingTime) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide providerId, serviceType, description, and location'
+        message: 'Please provide providerId, serviceType, description, location, bookingDate, and bookingTime'
       });
     }
 
@@ -61,7 +96,17 @@ const createBooking = async (req, res) => {
       serviceType,
       description,
       location,
+      bookingDate,
+      bookingTime,
       status: 'Pending'
+    });
+
+    // Create Notification for the provider
+    await Notification.create({
+      user: providerId,
+      title: 'New Booking Request',
+      message: `You have received a new booking request for ${serviceType} on ${new Date(bookingDate).toLocaleDateString()} at ${bookingTime} from ${req.user.name}.`,
+      booking: booking._id
     });
 
     res.status(201).json({
@@ -137,14 +182,14 @@ const updateBookingStatus = async (req, res) => {
     }
 
     // Find the booking
-    const booking = await Booking.findById(req.params.id);
+    const booking = await Booking.findById(req.params.id).populate('provider', 'name');
 
     if (!booking) {
       return res.status(404).json({ success: false, message: 'Booking not found' });
     }
 
     // Check if the logged-in provider is the owner of the booking
-    if (booking.provider.toString() !== req.user._id.toString()) {
+    if (booking.provider._id.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to modify this booking'
@@ -152,7 +197,15 @@ const updateBookingStatus = async (req, res) => {
     }
 
     booking.status = status;
-    await booking.save();
+    await booking.save({ validateBeforeSave: false });
+
+    // Create system Notification for the client (booking.user)
+    await Notification.create({
+      user: booking.user,
+      title: `Booking Request ${status}`,
+      message: `Your booking request for ${booking.serviceType} has been ${status.toLowerCase()} by ${booking.provider.name || 'the provider'}.`,
+      booking: booking._id
+    });
 
     res.json({
       success: true,

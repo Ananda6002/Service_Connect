@@ -43,6 +43,22 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  averageRating: {
+    type: Number,
+    default: 0
+  },
+  numReviews: {
+    type: Number,
+    default: 0
+  },
+  latitude: {
+    type: Number,
+    default: null
+  },
+  longitude: {
+    type: Number,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now

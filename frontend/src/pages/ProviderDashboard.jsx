@@ -3,8 +3,72 @@ import { AuthContext } from '../context/AuthContext';
 import API from '../services/api';
 
 const ProviderDashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user, updateProfile } = useContext(AuthContext);
   const [bookings, setBookings] = useState([]);
+
+  // Profile editing state
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editLocation, setEditLocation] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editBio, setEditBio] = useState('');
+  const [editHourlyRate, setEditHourlyRate] = useState(0);
+  const [editSkills, setEditSkills] = useState([]);
+  const [profileMsg, setProfileMsg] = useState({ type: '', text: '' });
+
+  const servicesList = ['Electrician', 'Plumber', 'Technician', 'Carpenter', 'Painter', 'AC Repair'];
+  const citiesList = ['Delhi', 'Mumbai', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Pimpri-Chinchwad', 'Patna', 'Vadodara', 'Ghaziabad', 'Ludhiana', 'Agra', 'Nashik', 'Faridabad', 'Meerut', 'Rajkot', 'Kalyan-Dombivli', 'Vasai-Virar', 'Coimbatore', 'Madurai', 'Kochi', 'Chandigarh', 'Guwahati', 'Bhubaneswar', 'Dehradun', 'Amritsar', 'Mysore', 'Ranchi', 'Jodhpur'];
+
+  const startEditingProfile = () => {
+    setEditName(user?.name || '');
+    setEditLocation(user?.location || '');
+    setEditPhone(user?.phone || '');
+    setEditBio(user?.bio || '');
+    setEditHourlyRate(user?.hourlyRate || 0);
+    setEditSkills(user?.skills || []);
+    setProfileMsg({ type: '', text: '' });
+    setIsEditingProfile(true);
+  };
+
+  const handleDiscardProfile = () => {
+    setIsEditingProfile(false);
+    setProfileMsg({ type: '', text: '' });
+  };
+
+  const handleSkillToggle = (skill) => {
+    if (editSkills.includes(skill)) {
+      setEditSkills(editSkills.filter(s => s !== skill));
+    } else {
+      setEditSkills([...editSkills, skill]);
+    }
+  };
+
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    if (!editName) {
+      setProfileMsg({ type: 'danger', text: 'Name is required.' });
+      return;
+    }
+
+    const res = await updateProfile({
+      name: editName,
+      location: editLocation,
+      phone: editPhone,
+      bio: editBio,
+      hourlyRate: editHourlyRate,
+      skills: editSkills
+    });
+
+    if (res.success) {
+      setProfileMsg({ type: 'success', text: 'Profile updated successfully!' });
+      setTimeout(() => {
+        setIsEditingProfile(false);
+        setProfileMsg({ type: '', text: '' });
+      }, 1500);
+    } else {
+      setProfileMsg({ type: 'danger', text: res.message });
+    }
+  };
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState('All');
   const [errorMsg, setErrorMsg] = useState('');
@@ -77,33 +141,154 @@ const ProviderDashboard = () => {
           <h2 className="brand-font gradient-title mb-1">Welcome back, {user?.name}!</h2>
           <p className="text-secondary small">Manage client requests, update status, and track your completed jobs.</p>
         </div>
-        <div className="col-md-4 text-md-end mt-3 mt-md-0">
-          <div className="p-3 glass-card text-center d-inline-block">
+        <div className="col-md-4 text-md-end mt-3 mt-md-0 d-flex gap-3 justify-content-md-end justify-content-center">
+          <div className="p-3 glass-card text-center">
+            <span className="text-secondary small d-block">Rating</span>
+            <strong className="text-warning fs-5 brand-font">
+              ★ {user?.averageRating ? user?.averageRating.toFixed(1) : '0.0'}
+            </strong>
+            <span className="text-secondary d-block small" style={{ fontSize: '0.65rem' }}>
+              ({user?.numReviews || 0} reviews)
+            </span>
+          </div>
+          <div className="p-3 glass-card text-center">
             <span className="text-secondary small d-block">My Hourly Rate</span>
-            <strong className="text-info fs-4 brand-font">${user?.hourlyRate || 0}/hr</strong>
+            <strong className="text-info fs-5 brand-font">₹{user?.hourlyRate || 0}/hr</strong>
           </div>
         </div>
       </div>
 
       {/* Profile Details Block */}
-      <div className="glass-card p-4 mb-5">
-        <div className="row align-items-center">
-          <div className="col-md-8">
-            <h5 className="text-light brand-font"><i className="bi bi-person-badge text-info me-2"></i> Provider Profile Summary</h5>
-            <p className="text-secondary small mb-2">{user?.bio || "No biography provided. Clients see this on your profile."}</p>
-            <div className="d-flex flex-wrap gap-2 mt-3">
-              {user?.skills?.map(s => (
-                <span key={s} className="badge bg-dark border border-info text-info px-2 py-1">{s}</span>
-              ))}
-              <span className="badge bg-dark border border-secondary text-secondary px-2 py-1">
-                <i className="bi bi-geo-alt-fill text-warning me-1"></i> {user?.location || 'No location'}
-              </span>
-              <span className="badge bg-dark border border-secondary text-secondary px-2 py-1">
-                <i className="bi bi-telephone-fill me-1"></i> {user?.phone || 'No phone'}
-              </span>
+      <div className="glass-card p-4 mb-5 animate-fade-in">
+        {!isEditingProfile ? (
+          <div className="row align-items-center">
+            <div className="col-md-9">
+              <h5 className="text-light brand-font"><i className="bi bi-person-badge text-info me-2"></i> Provider Profile Summary</h5>
+              <p className="text-secondary small mb-2">{user?.bio || "No biography provided. Clients see this on your profile."}</p>
+              <div className="d-flex flex-wrap gap-2 mt-3">
+                {user?.skills?.map(s => (
+                  <span key={s} className="badge bg-dark border border-info text-info px-2 py-1">{s}</span>
+                ))}
+                <span className="badge bg-dark border border-secondary text-secondary px-2 py-1">
+                  <i className="bi bi-geo-alt-fill text-warning me-1"></i> {user?.location || 'No location'}
+                </span>
+                <span className="badge bg-dark border border-secondary text-secondary px-2 py-1">
+                  <i className="bi bi-telephone-fill me-1"></i> {user?.phone || 'No phone'}
+                </span>
+              </div>
+            </div>
+            <div className="col-md-3 text-md-end mt-3 mt-md-0">
+              <button onClick={startEditingProfile} className="btn btn-outline-cyan btn-sm px-4">
+                <i className="bi bi-pencil-square me-1"></i> Edit Profile
+              </button>
             </div>
           </div>
-        </div>
+        ) : (
+          <form onSubmit={handleSaveProfile}>
+            <h5 className="text-light brand-font mb-3">
+              <i className="bi bi-pencil-square text-info me-2"></i> Edit Provider Profile
+            </h5>
+
+            {profileMsg.text && (
+              <div className={`alert alert-${profileMsg.type} p-2 small border-0 bg-${profileMsg.type} bg-opacity-10 text-${profileMsg.type} mb-3`}>
+                {profileMsg.text}
+              </div>
+            )}
+
+            <div className="row g-3 mb-3">
+              <div className="col-md-4">
+                <label className="form-label text-secondary small fw-medium">Full Name</label>
+                <input
+                  type="text"
+                  className="form-control form-control-custom text-light"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Your Name"
+                  required
+                />
+              </div>
+              <div className="col-md-4">
+                <label className="form-label text-secondary small fw-medium">Location</label>
+                <input
+                  type="text"
+                  className="form-control form-control-custom text-light"
+                  value={editLocation}
+                  onChange={(e) => setEditLocation(e.target.value)}
+                  placeholder="Type or select a city"
+                  list="cities-datalist-provider"
+                />
+                <datalist id="cities-datalist-provider">
+                  {citiesList.map(city => <option key={city} value={city} />)}
+                </datalist>
+              </div>
+              <div className="col-md-4">
+                <label className="form-label text-secondary small fw-medium">Phone Number</label>
+                <input
+                  type="text"
+                  className="form-control form-control-custom text-light"
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  placeholder="Phone Number"
+                />
+              </div>
+            </div>
+
+            <div className="row g-3 mb-3">
+              <div className="col-md-4">
+                <label className="form-label text-secondary small fw-medium">Hourly Rate (₹)</label>
+                <input
+                  type="number"
+                  className="form-control form-control-custom text-light"
+                  value={editHourlyRate}
+                  onChange={(e) => setEditHourlyRate(e.target.value)}
+                  placeholder="e.g. 50"
+                  min="0"
+                />
+              </div>
+              <div className="col-md-8">
+                <label className="form-label text-secondary small fw-medium">Bio / Experience Summary</label>
+                <textarea
+                  className="form-control form-control-custom text-light"
+                  rows="2"
+                  value={editBio}
+                  onChange={(e) => setEditBio(e.target.value)}
+                  placeholder="Tell clients about your services..."
+                />
+              </div>
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label text-secondary small fw-medium d-block">Services (Skills)</label>
+              <div className="row g-2">
+                {servicesList.map(skill => (
+                  <div className="col-md-4 col-6" key={skill}>
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id={`edit-skill-${skill}`}
+                        checked={editSkills.includes(skill)}
+                        onChange={() => handleSkillToggle(skill)}
+                      />
+                      <label className="form-check-label text-light small" htmlFor={`edit-skill-${skill}`}>
+                        {skill}
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="d-flex justify-content-end gap-2 mt-4">
+              <button type="button" onClick={handleDiscardProfile} className="btn btn-outline-secondary btn-sm px-4">
+                Discard
+              </button>
+              <button type="submit" className="btn btn-cyan btn-sm px-4">
+                Save Changes
+              </button>
+            </div>
+          </form>
+        )}
       </div>
 
       {/* Metrics widgets */}
@@ -211,6 +396,13 @@ const ProviderDashboard = () => {
                       <strong className="text-light">Service Address: </strong>
                       {b.location}
                     </div>
+                    {b.bookingDate && (
+                      <div className="text-secondary small mt-1" style={{ fontSize: '0.75rem' }}>
+                        <i className="bi bi-calendar-event text-info me-1"></i>
+                        <strong className="text-light">Scheduled Time: </strong>
+                        {new Date(b.bookingDate).toLocaleDateString()} at {b.bookingTime}
+                      </div>
+                    )}
                     <div className="text-secondary small mt-1" style={{ fontSize: '0.75rem' }}>
                       <i className="bi bi-envelope-fill text-info me-1"></i>
                       <strong className="text-light">Email: </strong>

@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import MapModal from '../components/MapModal';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -12,15 +13,20 @@ const Register = () => {
 
   // Provider-specific states
   const [skills, setSkills] = useState([]);
+  const [customSkills, setCustomSkills] = useState('');
   const [location, setLocation] = useState('');
   const [phone, setPhone] = useState('');
   const [hourlyRate, setHourlyRate] = useState('');
   const [bio, setBio] = useState('');
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
+  const [showMapModal, setShowMapModal] = useState(false);
 
   const { register, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const availableSkills = ['Electrician', 'Plumber', 'Technician', 'Carpenter', 'Painter', 'AC Repair'];
+  const availableCities = ['Delhi', 'Mumbai', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Pimpri-Chinchwad', 'Patna', 'Vadodara', 'Ghaziabad', 'Ludhiana', 'Agra', 'Nashik', 'Faridabad', 'Meerut', 'Rajkot', 'Kalyan-Dombivli', 'Vasai-Virar', 'Coimbatore', 'Madurai', 'Kochi', 'Chandigarh', 'Guwahati', 'Bhubaneswar', 'Dehradun', 'Amritsar', 'Mysore', 'Ranchi', 'Jodhpur'];
 
   // Redirect if logged in
   useEffect(() => {
@@ -48,19 +54,28 @@ const Register = () => {
 
     const extraFields = {};
     if (role === 'provider') {
-      if (skills.length === 0) {
-        setErrorMsg('Please select at least one skill.');
+      const parsedCustomSkills = customSkills
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      const allSkills = [...skills, ...parsedCustomSkills];
+
+      if (allSkills.length === 0) {
+        setErrorMsg('Please select or specify at least one skill.');
         return;
       }
       if (!location || !phone) {
         setErrorMsg('Please enter both location and contact phone number.');
         return;
       }
-      extraFields.skills = skills;
+      extraFields.skills = allSkills;
       extraFields.location = location;
       extraFields.phone = phone;
       extraFields.bio = bio;
       extraFields.hourlyRate = hourlyRate ? parseFloat(hourlyRate) : 0;
+      extraFields.latitude = latitude;
+      extraFields.longitude = longitude;
     }
 
     setLoadingSubmit(true);
@@ -170,20 +185,58 @@ const Register = () => {
                     </div>
                   </div>
 
+                  <div className="mb-3">
+                    <label className="form-label text-secondary small fw-medium">Other Skills (separated by commas)</label>
+                    <input
+                      type="text"
+                      className="form-control form-control-custom"
+                      placeholder="e.g. Gardening, Car Wash, House Cleaning"
+                      value={customSkills}
+                      onChange={(e) => setCustomSkills(e.target.value)}
+                    />
+                  </div>
+
                   <div className="row g-3 mb-3">
                     <div className="col-md-6">
-                      <label className="form-label text-secondary small fw-medium">Location</label>
+                      <div className="d-flex justify-content-between align-items-center mb-1">
+                        <label className="form-label text-secondary small fw-medium mb-0">Location (City)</label>
+                        <button
+                          type="button"
+                          className="btn btn-link p-0 text-cyan small fw-semibold text-decoration-none"
+                          onClick={() => setShowMapModal(true)}
+                          title="Pin precise location on map"
+                        >
+                          <i className="bi bi-geo-alt-fill"></i> Choose on Map
+                        </button>
+                      </div>
                       <input
                         type="text"
-                        className="form-control form-control-custom"
-                        placeholder="e.g. Seattle, WA"
+                        className="form-control form-control-custom text-light"
+                        placeholder="Type or select a city"
                         value={location}
-                        onChange={(e) => setLocation(e.target.value)}
+                        onChange={(e) => {
+                          setLocation(e.target.value);
+                          // Reset custom coordinates if they select a different city to let default kick in, unless they pin again
+                          setLatitude(null);
+                          setLongitude(null);
+                        }}
+                        list="cities-datalist-register"
                         required={role === 'provider'}
                       />
+                      <datalist id="cities-datalist-register">
+                        {availableCities.map(city => (
+                          <option key={city} value={city} />
+                        ))}
+                      </datalist>
+                      {latitude && longitude && (
+                        <div className="mt-1 small text-info font-monospace" style={{ fontSize: '0.7rem' }}>
+                          <i className="bi bi-check-circle-fill text-emerald me-1"></i>
+                          Pinned: {latitude.toFixed(4)}, {longitude.toFixed(4)}
+                        </div>
+                      )}
                     </div>
                     <div className="col-md-6">
-                      <label className="form-label text-secondary small fw-medium">Hourly Rate ($)</label>
+                      <label className="form-label text-secondary small fw-medium">Hourly Rate (₹)</label>
                       <input
                         type="number"
                         className="form-control form-control-custom"
@@ -244,6 +297,18 @@ const Register = () => {
                 </Link>
               </div>
             </form>
+
+            <MapModal
+              show={showMapModal}
+              onClose={() => setShowMapModal(false)}
+              initialCity={location}
+              initialLat={latitude}
+              initialLng={longitude}
+              onConfirm={({ latitude, longitude }) => {
+                setLatitude(latitude);
+                setLongitude(longitude);
+              }}
+            />
           </div>
         </div>
       </div>
