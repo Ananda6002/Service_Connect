@@ -182,14 +182,14 @@ const updateBookingStatus = async (req, res) => {
     }
 
     // Find the booking
-    const booking = await Booking.findById(req.params.id).populate('provider', 'name');
+    const booking = await Booking.findById(req.params.id);
 
     if (!booking) {
       return res.status(404).json({ success: false, message: 'Booking not found' });
     }
 
     // Check if the logged-in provider is the owner of the booking
-    if (booking.provider._id.toString() !== req.user._id.toString()) {
+    if (booking.provider.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to modify this booking'
@@ -203,7 +203,7 @@ const updateBookingStatus = async (req, res) => {
     await Notification.create({
       user: booking.user,
       title: `Booking Request ${status}`,
-      message: `Your booking request for ${booking.serviceType} has been ${status.toLowerCase()} by ${booking.provider.name || 'the provider'}.`,
+      message: `Your booking request for ${booking.serviceType} has been ${status.toLowerCase()} by ${req.user.name || 'the provider'}.`,
       booking: booking._id
     });
 

@@ -1,0 +1,514 @@
+[
+  {
+    "_id": "7pwww4yarmsjyd99g",
+    "name": "Alice User",
+    "email": "alice@example.com",
+    "password": "$2a$10$iiODmEM1VujlhXuQMGDcs./.ZgHFZvmjZ1y.jMKHXTSmzcSow2jlm",
+    "role": "user",
+    "skills": [],
+    "location": "",
+    "phone": "",
+    "bio": "",
+    "hourlyRate": 0,
+    "averageRating": 0,
+    "numReviews": 0,
+    "latitude": null,
+    "longitude": null,
+    "createdAt": "2026-08-08T05:48:18.413Z"
+  },
+  {
+    "_id": "cpfc27favmsjyd9bn",
+    "name": "Bob Provider",
+    "email": "bob@example.com",
+    "password": "$2a$10$Og5JxdoU8So9SnKy/NxSH.LZIvAYoAXR1JX44jAk68b9w.j4P54Di",
+    "role": "provider",
+    "skills": [
+      "Electrician",
+      "Plumber"
+    ],
+    "location": "Delhi",
+    "phone": "9999999999",
+    "bio": "Experienced home service provider.",
+    "hourlyRate": 350,
+    "averageRating": 0,
+    "numReviews": 0,
+    "latitude": null,
+    "longitude": null,
+    "createdAt": "2026-08-08T05:48:18.482Z"
+  },
+  {
+    "_id": "cp45f6279msjyd9df",
+    "name": "Admin User",
+    "email": "admin@example.com",
+    "password": "$2a$10$qE2XWMwR5NUe6z1J4lj/SOM0AltRGHvRA8jUlwAiAEe6LdPuQMAEi",
+    "role": "admin",
+    "skills": [],
+    "location": "",
+    "phone": "",
+    "bio": "",
+    "hourlyRate": 0,
+    "averageRating": 0,
+    "numReviews": 0,
+    "latitude": null,
+    "longitude": null,
+    "createdAt": "2026-08-08T05:48:18.546Z"
+  },
+  {
+    "name": "AAA",
+    "email": "aaa@gmail.com",
+    "password": "123456",
+    "role": "user",
+    "latitude": null,
+    "longitude": null,
+    "_originalData": {
+      "name": "AAA",
+      "email": "aaa@gmail.com",
+      "password": "123456",
+      "role": "user",
+      "latitude": null,
+      "longitude": null
+    },
+    "_id": "mj6kci59nmslyzvdi",
+    "createdAt": "2026-08-09T15:41:25.782Z"
+  },
+  {
+    "name": "Adithya",
+    "email": "adithya@gmail.com",
+    "password": "12345678",
+    "role": "user",
+    "latitude": null,
+    "longitude": null,
+    "_originalData": {
+      "name": "Adithya",
+      "email": "adithya@gmail.com",
+      "password": "12345678",
+      "role": "user",
+      "latitude": null,
+      "longitude": null
+    },
+    "_id": "8bnomzf5smslz1igd",
+    "createdAt": "2026-08-09T15:42:42.349Z"
+  },
+  {
+    "name": "BBB",
+    "email": "bbb@gmail.com",
+    "password": "1234567",
+    "role": "provider",
+    "latitude": null,
+    "longitude": null,
+    "skills": [
+      "Technician"
+    ],
+    "location": "Rajkot",
+    "phone": "7645382764",
+    "bio": "...",
+    "hourlyRate": 78,
+    "_originalData": {
+      "name": "BBB",
+      "email": "bbb@gmail.com",
+      "password": "1234567",
+      "role": "provider",
+      "latitude": null,
+      "longitude": null,
+      "skills": [
+        "Technician"
+      ],
+      "location": "Rajkot",
+      "phone": "7645382764",
+      "bio": "...",
+      "hourlyRate": 78
+    },
+    "_id": "beuoeo1dzmslz4gzd",
+    "createdAt": "2026-08-09T15:45:00.409Z"
+  },
+  {
+    "name": "ddd",
+    "email": "d@gmail.com",
+    "password": "1234567",
+    "role": "user",
+    "latitude": null,
+    "longitude": null,
+    "_originalData": {
+      "name": "ddd",
+      "email": "d@gmail.com",
+      "password": "1234567",
+      "role": "user",
+      "latitude": null,
+      "longitude": null
+    },
+    "_id": "ky3hgdc55mslz7ot6",
+    "createdAt": "2026-08-09T15:47:30.522Z"
+  },
+  {
+    "name": "Test User",
+    "email": "testuser123@example.com",
+    "password": "Password123",
+    "role": "user",
+    "latitude": null,
+    "longitude": null,
+    "_originalData": {
+      "name": "Test User",
+      "email": "testuser123@example.com",
+      "password": "Password123",
+      "role": "user",
+      "latitude": null,
+      "longitude": null
+    },
+    "_id": "dsrrchpkzmslzd8zn",
+    "createdAt": "2026-08-09T15:51:49.955Z"
+  },
+  {
+    "name": "Reg Test",
+    "email": "regtest9070@example.com",
+    "password": "$2a$10$rMuAQzS31nOlzU5Bd4QGse1XvONH2pFMWTBoEQjq6z6jddagZeqK2",
+    "role": "user",
+    "latitude": null,
+    "longitude": null,
+    "_originalData": {
+      "name": "Reg Test",
+      "email": "regtest9070@example.com",
+      "password": "Password123",
+      "role": "user",
+      "latitude": null,
+      "longitude": null
+    },
+    "_id": "nrepyswwpmslzkgjl",
+    "createdAt": "2026-08-09T15:57:26.337Z"
+  },
+  {
+    "name": "Akash",
+    "email": "akash@gmail.com",
+    "password": "$2a$10$jbDSQ3CyHGDCsI5Tyu.0..iHa8Bppq1.b9GRez/DytfYiLlGCbtMi",
+    "role": "user",
+    "latitude": null,
+    "longitude": null,
+    "_originalData": {
+      "name": "Akash",
+      "email": "akash@gmail.com",
+      "password": "password1",
+      "role": "user",
+      "latitude": null,
+      "longitude": null
+    },
+    "_id": "s0acwa7t5msm0ay4h",
+    "createdAt": "2026-08-09T16:18:02.177Z"
+  },
+  {
+    "name": "API User",
+    "email": "user1099@example.com",
+    "password": "$2a$10$4gQOhwa31MDlbfsJhnCIIOIqwRpOgh6ANbN8mXUWF5NeFeGNBcVEy",
+    "role": "user",
+    "latitude": null,
+    "longitude": null,
+    "_originalData": {
+      "name": "API User",
+      "email": "user1099@example.com",
+      "password": "Password123",
+      "role": "user",
+      "latitude": null,
+      "longitude": null
+    },
+    "_id": "y4i2t8vqbmsm0mfqp",
+    "createdAt": "2026-08-09T16:26:58.225Z"
+  },
+  {
+    "name": "API Provider",
+    "email": "provider3627@example.com",
+    "password": "$2a$10$1adl0RuUIsAR9Y4RhPK6veNtGhGQ5OVMMZj6tCdm37wMRTVsQ0Y4q",
+    "role": "provider",
+    "latitude": null,
+    "longitude": null,
+    "skills": [
+      "Electrician"
+    ],
+    "location": "Delhi",
+    "phone": "9990001111",
+    "bio": "Test provider",
+    "hourlyRate": 250,
+    "_originalData": {
+      "name": "API Provider",
+      "email": "provider3627@example.com",
+      "password": "Password123",
+      "role": "provider",
+      "latitude": null,
+      "longitude": null,
+      "skills": [
+        "Electrician"
+      ],
+      "location": "Delhi",
+      "phone": "9990001111",
+      "bio": "Test provider",
+      "hourlyRate": 250
+    },
+    "_id": "garkjk2a0msm0mft7",
+    "createdAt": "2026-08-09T16:26:58.315Z"
+  },
+  {
+    "name": "API User",
+    "email": "user2026@example.com",
+    "password": "$2a$10$c16JvDQIky74jnwkh9HFfOMEzrXdagrDFJOBiU1wR6DjgDLtAcsKm",
+    "role": "user",
+    "latitude": null,
+    "longitude": null,
+    "_originalData": {
+      "name": "API User",
+      "email": "user2026@example.com",
+      "password": "Password123",
+      "role": "user",
+      "latitude": null,
+      "longitude": null
+    },
+    "_id": "j6pq5hq3nmsm0ulos",
+    "createdAt": "2026-08-09T16:33:19.180Z"
+  },
+  {
+    "name": "API Provider",
+    "email": "provider8108@example.com",
+    "password": "$2a$10$0qR4puKBqaeePcP7qXkkSeNBCvLuxIlkv2QJOFCgRd4n4p4Er5JqC",
+    "role": "provider",
+    "latitude": null,
+    "longitude": null,
+    "skills": [
+      "Electrician"
+    ],
+    "location": "Delhi",
+    "phone": "9990001111",
+    "bio": "Test provider",
+    "hourlyRate": 250,
+    "_originalData": {
+      "name": "API Provider",
+      "email": "provider8108@example.com",
+      "password": "Password123",
+      "role": "provider",
+      "latitude": null,
+      "longitude": null,
+      "skills": [
+        "Electrician"
+      ],
+      "location": "Delhi",
+      "phone": "9990001111",
+      "bio": "Test provider",
+      "hourlyRate": 250
+    },
+    "_id": "iv37eyearmsm0ulr5",
+    "createdAt": "2026-08-09T16:33:19.265Z"
+  },
+  {
+    "name": "API User",
+    "email": "user1503@example.com",
+    "password": "$2a$10$GPpIyqHzuCDE.K0HdoRto.vkX4KXCxq64WzleZYXV4Q0SKVekc5ZS",
+    "role": "user",
+    "latitude": null,
+    "longitude": null,
+    "_originalData": {
+      "name": "API User",
+      "email": "user1503@example.com",
+      "password": "Password123",
+      "role": "user",
+      "latitude": null,
+      "longitude": null
+    },
+    "_id": "9n6mp1x90msm0v5o6",
+    "createdAt": "2026-08-09T16:33:45.078Z"
+  },
+  {
+    "name": "API Provider",
+    "email": "provider8961@example.com",
+    "password": "$2a$10$xKgHECco6n9yydATTizIQuLcMSnuryLXboK/G8Oyb2WpK5yOA1nhC",
+    "role": "provider",
+    "latitude": null,
+    "longitude": null,
+    "skills": [
+      "Electrician"
+    ],
+    "location": "Delhi",
+    "phone": "9990001111",
+    "bio": "Test provider",
+    "hourlyRate": 250,
+    "_originalData": {
+      "name": "API Provider",
+      "email": "provider8961@example.com",
+      "password": "Password123",
+      "role": "provider",
+      "latitude": null,
+      "longitude": null,
+      "skills": [
+        "Electrician"
+      ],
+      "location": "Delhi",
+      "phone": "9990001111",
+      "bio": "Test provider",
+      "hourlyRate": 250
+    },
+    "_id": "9fwns58awmsm0v6j1",
+    "createdAt": "2026-08-09T16:33:46.189Z"
+  },
+  {
+    "name": "API User",
+    "email": "user5301@example.com",
+    "password": "$2a$10$Fdzr1C3bqJkEwWsfrGKk3OSDiBmFkB384D6ZkNz/cs0ccnhtTXQSW",
+    "role": "user",
+    "latitude": null,
+    "longitude": null,
+    "_originalData": {
+      "name": "API User",
+      "email": "user5301@example.com",
+      "password": "Password123",
+      "role": "user",
+      "latitude": null,
+      "longitude": null
+    },
+    "_id": "g9h9vsevlmsm0vkxc",
+    "createdAt": "2026-08-09T16:34:04.848Z"
+  },
+  {
+    "name": "API Provider",
+    "email": "provider8423@example.com",
+    "password": "$2a$10$EZS5pmppxrW1abzU32UA5ulIshRig2ICnr8GDV1.LCXjt8dubxH/e",
+    "role": "provider",
+    "latitude": null,
+    "longitude": null,
+    "skills": [
+      "Electrician"
+    ],
+    "location": "Delhi",
+    "phone": "9990001111",
+    "bio": "Test provider",
+    "hourlyRate": 250,
+    "_originalData": {
+      "name": "API Provider",
+      "email": "provider8423@example.com",
+      "password": "Password123",
+      "role": "provider",
+      "latitude": null,
+      "longitude": null,
+      "skills": [
+        "Electrician"
+      ],
+      "location": "Delhi",
+      "phone": "9990001111",
+      "bio": "Test provider",
+      "hourlyRate": 250
+    },
+    "_id": "kywqu9wczmsm0vkzt",
+    "createdAt": "2026-08-09T16:34:04.937Z"
+  },
+  {
+    "name": "API User",
+    "email": "user1016@example.com",
+    "password": "$2a$10$d1gax0njJzfj1f1SmPIRhurQDtvSMn3Xlc7NI8jG6lcSbFx3PPwoy",
+    "role": "user",
+    "latitude": null,
+    "longitude": null,
+    "_originalData": {
+      "name": "API User",
+      "email": "user1016@example.com",
+      "password": "Password123",
+      "role": "user",
+      "latitude": null,
+      "longitude": null
+    },
+    "_id": "fwizykt6omsm0w09u",
+    "createdAt": "2026-08-09T16:34:24.738Z"
+  },
+  {
+    "name": "API Provider",
+    "email": "provider2186@example.com",
+    "password": "$2a$10$.sw6C3ym4iV3Ror.Fw8Bje.XdcFPmpTTj4AFk5TPFQd1nNOnaJCTa",
+    "role": "provider",
+    "latitude": null,
+    "longitude": null,
+    "skills": [
+      "Electrician"
+    ],
+    "location": "Delhi",
+    "phone": "9990001111",
+    "bio": "Test provider",
+    "hourlyRate": 250,
+    "_originalData": {
+      "name": "API Provider",
+      "email": "provider2186@example.com",
+      "password": "Password123",
+      "role": "provider",
+      "latitude": null,
+      "longitude": null,
+      "skills": [
+        "Electrician"
+      ],
+      "location": "Delhi",
+      "phone": "9990001111",
+      "bio": "Test provider",
+      "hourlyRate": 250
+    },
+    "_id": "c6q4qmr5xmsm0w0ch",
+    "createdAt": "2026-08-09T16:34:24.833Z"
+  },
+  {
+    "name": "API User",
+    "email": "user8258@example.com",
+    "password": "$2a$10$.TJvASJBgw6Cf9ws1ijcWe5Oky/ycCPhzTLWC2Uo6Vlt93l1D9j26",
+    "role": "user",
+    "latitude": null,
+    "longitude": null,
+    "_originalData": {
+      "name": "API User",
+      "email": "user8258@example.com",
+      "password": "Password123",
+      "role": "user",
+      "latitude": null,
+      "longitude": null
+    },
+    "_id": "oqogh1i7wmsm0wt66",
+    "createdAt": "2026-08-09T16:35:02.190Z"
+  },
+  {
+    "name": "API Provider",
+    "email": "provider5156@example.com",
+    "password": "$2a$10$9GrEw/Ncj3dMzn/.1IvJT.5kvvrj80JVFJFjmCxtgkh2NcPTBPAQe",
+    "role": "provider",
+    "latitude": null,
+    "longitude": null,
+    "skills": [
+      "Electrician"
+    ],
+    "location": "Delhi",
+    "phone": "9990001111",
+    "bio": "Test provider",
+    "hourlyRate": 250,
+    "_originalData": {
+      "name": "API Provider",
+      "email": "provider5156@example.com",
+      "password": "Password123",
+      "role": "provider",
+      "latitude": null,
+      "longitude": null,
+      "skills": [
+        "Electrician"
+      ],
+      "location": "Delhi",
+      "phone": "9990001111",
+      "bio": "Test provider",
+      "hourlyRate": 250
+    },
+    "_id": "t2fidjn9zmsm0wt9l",
+    "createdAt": "2026-08-09T16:35:02.313Z"
+  },
+  {
+    "name": "abcd",
+    "email": "abcd@gmail.com",
+    "password": "$2a$10$GuH1M4nkO3XIbFHAnuqHL./OXvYlmR9jJ9.TewSMYjv7gBwPfRhOi",
+    "role": "user",
+    "latitude": null,
+    "longitude": null,
+    "_originalData": {
+      "name": "abcd",
+      "email": "abcd@gmail.com",
+      "password": "password1",
+      "role": "user",
+      "latitude": null,
+      "longitude": null
+    },
+    "_id": "i4jsnfrx4msm12bv9",
+    "createdAt": "2026-08-09T16:39:19.701Z"
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "user": "cpfc27favmsjyd9bn",
+    "title": "New Booking Request",
+    "message": "You have received a new booking request for Electrician on 11/8/2026 at 10:00 AM from API User.",
+    "booking": "o6jwf61uxmsm0w0q7",
+    "_originalData": {
+      "user": "cpfc27favmsjyd9bn",
+      "title": "New Booking Request",
+      "message": "You have received a new booking request for Electrician on 11/8/2026 at 10:00 AM from API User.",
+      "booking": "o6jwf61uxmsm0w0q7"
+    },
+    "_id": "u7w7fv2e6msm0w0r8",
+    "createdAt": "2026-08-09T16:34:25.364Z"
+  },
+  {
+    "user": "t2fidjn9zmsm0wt9l",
+    "title": "New Booking Request",
+    "message": "You have received a new booking request for Electrician on 11/8/2026 at 10:00 AM from API User.",
+    "booking": "zwiv8qho9msm0wtg8",
+    "_originalData": {
+      "user": "t2fidjn9zmsm0wt9l",
+      "title": "New Booking Request",
+      "message": "You have received a new booking request for Electrician on 11/8/2026 at 10:00 AM from API User.",
+      "booking": "zwiv8qho9msm0wtg8"
+    },
+    "_id": "23vursz8gmsm0wth5",
+    "createdAt": "2026-08-09T16:35:02.585Z"
+  },
+  {
+    "user": "oqogh1i7wmsm0wt66",
+    "title": "Booking Request Accepted",
+    "message": "Your booking request for Electrician has been accepted by API Provider.",
+    "booking": "zwiv8qho9msm0wtg8",
+    "_originalData": {
+      "user": "oqogh1i7wmsm0wt66",
+      "title": "Booking Request Accepted",
+      "message": "Your booking request for Electrician has been accepted by API Provider.",
+      "booking": "zwiv8qho9msm0wtg8"
+    },
+    "_id": "425pfgpblmsm0wtix",
+    "createdAt": "2026-08-09T16:35:02.649Z"
+  }
+]

@@ -2,23 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
-const connectDB = async () => {
-  try {
-    const connect = require('./config/db');
-    await connect();
-  } catch (err) {
-    console.error('Database connection failed', err);
-  }
-};
+const connectDB = require('./config/db');
 
 // Load environment variables
 dotenv.config();
 
 // Initialize express app
 const app = express();
-
-// Database connection
-connectDB();
 
 // Middleware
 app.use(cors({
@@ -54,10 +44,21 @@ app.use((err, req, res, next) => {
 });
 
 // Listen on configured port
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const PORT = process.env.PORT || 5050;
+
+const startServer = async () => {
+  try {
+    await connectDB();
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('Server startup failed:', err.message);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 module.exports = app;
 

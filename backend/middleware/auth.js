@@ -14,8 +14,9 @@ const protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'superSecretKeyForToken1234');
 
       // Get user from token and exclude password
-      req.user = await User.findById(decoded.id).select('-password');
-      
+      const foundUser = await User.findById(decoded.id).select('-password');
+      req.user = foundUser || null;
+
       if (!req.user) {
         return res.status(401).json({ success: false, message: 'Not authorized, user not found' });
       }
